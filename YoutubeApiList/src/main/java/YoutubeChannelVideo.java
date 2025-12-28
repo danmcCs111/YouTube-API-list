@@ -1,3 +1,4 @@
+import com.google.api.client.util.DateTime;
 
 public class YoutubeChannelVideo 
 {
@@ -5,12 +6,14 @@ public class YoutubeChannelVideo
 		title,
 		imageUrl,
 		videoId;
+	private DateTime dt;
 	
-	public YoutubeChannelVideo(String title, String imageUrl, String videoId)
+	public YoutubeChannelVideo(String title, String imageUrl, String videoId, DateTime dt)
 	{
 		this.title = title;
 		this.imageUrl = imageUrl;
 		this.videoId = videoId;
+		this.dt = dt;
 	}
 	
 	public String getTitle()

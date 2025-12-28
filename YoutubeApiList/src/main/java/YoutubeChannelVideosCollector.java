@@ -1,14 +1,19 @@
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.DateTime;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.ChannelListResponse;
-import com.google.api.services.youtube.model.PlaylistItem;
-import com.google.api.services.youtube.model.PlaylistItemListResponse;
+import com.google.api.services.youtube.model.SearchListResponse;
+import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Thumbnail;
 
 public class YoutubeChannelVideosCollector 
@@ -29,46 +34,72 @@ public class YoutubeChannelVideosCollector
                 .setApplicationName("youtube-cmdline-search-sample")
                 .build();
     	
-    	// Use the channels.list method with the 'contentDetails' part
     	YouTube.Channels.List channelRequest = youtube.channels().list(
     			Arrays.asList(new String []{"contentDetails"}));
     	channelRequest.setForHandle(youtubeHandleName);
     	channelRequest.setKey(apiKey);
 
     	ChannelListResponse channelResponse = channelRequest.execute();
-    	String uploadsPlaylistId = channelResponse.getItems().get(0).getContentDetails().getRelatedPlaylists().getUploads();
+    	String uploadsPlaylistId = channelResponse.getItems().getFirst().getId();
+    	System.out.println(uploadsPlaylistId);
     	
-    	// Use the playlistItems.list method with the 'snippet' and 'contentDetails' parts
-    	YouTube.PlaylistItems.List playlistItemRequest = youtube.playlistItems().list(
-    			Arrays.asList(new String []{"snippet", "contentDetails"}));
-    	playlistItemRequest.setPlaylistId(uploadsPlaylistId);
-    	playlistItemRequest.setMaxResults(50L); // Max results per page (50 is max)
-    	playlistItemRequest.setKey(apiKey);
+    	YouTube.Search.List searchItemRequest = youtube.search().list(
+    			Arrays.asList(new String []{"id", "snippet"}));
+    	searchItemRequest.setChannelId(uploadsPlaylistId);
+    	String formatDateR = getRfc3339String(-6);
+    	System.out.println(formatDateR);
+    	
+    	searchItemRequest.setPublishedAfter(formatDateR);
+    	searchItemRequest.setMaxResults(50L); // Max results per page (50 is max)
+    	searchItemRequest.setKey(apiKey);
 
-    	List<PlaylistItem> allVideos = new ArrayList<>();
+    	List<SearchResult> allVideos = new ArrayList<>();
     	String nextPageToken = "";
 
     	while (nextPageToken != null) 
     	{
-    		playlistItemRequest.setPageToken(nextPageToken);
-    	    PlaylistItemListResponse playlistItemResponse = playlistItemRequest.execute();
+    		searchItemRequest.setPageToken(nextPageToken);
+    	    SearchListResponse playlistItemResponse = searchItemRequest.execute();
 
     	    allVideos.addAll(playlistItemResponse.getItems());
     	    nextPageToken = playlistItemResponse.getNextPageToken(); // Get the next page token
     	}
 
     	// Now 'allVideos' list contains all videos from the channel
-    	for (PlaylistItem item : allVideos) 
+    	for (SearchResult item : allVideos) 
     	{
+    		String channelTitle = item.getSnippet().getChannelTitle();
+    		
     	    String videoTitle = item.getSnippet().getTitle();
     	    Thumbnail thumb = item.getSnippet().getThumbnails().getMedium();
     	    String thumbUrl = thumb.getUrl();
-    	    String videoId = item.getContentDetails().getVideoId();
-    	    retVideos.add(new YoutubeChannelVideo(videoTitle, thumbUrl, videoId));
+    	    String videoId = item.getId().getVideoId();
+    	    DateTime dt = item.getSnippet().getPublishedAt();
     	    
-    	    System.out.println("Video Title: " + videoTitle + " | Video ID: " + videoId + " | Thumbnail URL: " + thumbUrl);
+    	    retVideos.add(new YoutubeChannelVideo(videoTitle, thumbUrl, videoId, dt));
+    	    
+    	    System.out.println(
+    	    		"Date Time: " + dt.toStringRfc3339() + 
+    	    		" | Video Title: " + videoTitle + 
+    	    		" | Video ID: " + "www.youtube.com/watch?v=" + videoId + 
+    	    		" | Thumbnail URL: " + thumbUrl);
     	}
     	
     	return retVideos;
     }
+	
+	public static String getRfc3339String(int monthsOffset)
+	{
+		Calendar cal = Calendar.getInstance();
+    	cal.setTimeZone(TimeZone.getTimeZone("UTC"));
+    	cal.add(Calendar.MONTH, monthsOffset);
+    	Date d = cal.getTime();
+    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    	SimpleDateFormat sdf2 = new SimpleDateFormat("HH:MM:ss");
+    	String formatDate = sdf.format(d);
+    	String formatDate2 = sdf2.format(d);
+    	String formatDateR = formatDate + "T" + formatDate2 + "Z";
+    	
+    	return formatDateR;
+	}
 }
