@@ -85,10 +85,9 @@ public class YoutubeApiList
                 .build();
     	
     	// Use the channels.list method with the 'contentDetails' part
-    	YouTube.Channels.List channelRequest = youtube.channels().list("contentDetails");
+    	YouTube.Channels.List channelRequest = youtube.channels().list(Arrays.asList(new String []{"contentDetails"}));
     	// Identify the channel by ID, username, or handle
-    	channelRequest.setForUsername("VICE");
-//    	channelRequest.setId("UC_x5XG1OV2P6uZZ5FSM9Ttw"); // Example channel ID
+    	channelRequest.setForHandle("@ladbiblestories");
     	channelRequest.setKey(apiKey);
 
     	ChannelListResponse channelResponse = channelRequest.execute();
@@ -96,7 +95,7 @@ public class YoutubeApiList
     	    .getContentDetails().getRelatedPlaylists().getUploads();
     	
     	// Use the playlistItems.list method with the 'snippet' and 'contentDetails' parts
-    	YouTube.PlaylistItems.List playlistItemRequest = youtube.playlistItems().list("snippet,contentDetails");
+    	YouTube.PlaylistItems.List playlistItemRequest = youtube.playlistItems().list(Arrays.asList(new String []{"snippet", "contentDetails"}));
     	playlistItemRequest.setPlaylistId(uploadsPlaylistId);
     	playlistItemRequest.setMaxResults(50L); // Max results per page (50 is max)
     	playlistItemRequest.setKey(apiKey);
@@ -127,7 +126,7 @@ public class YoutubeApiList
     	YouTube youtubeService = getService();
     	// Define and execute the API request
     	YouTube.Channels.List request = youtubeService.channels()
-    			.list("snippet,contentDetails,statistics");
+    			.list(Arrays.asList(new String []{"statistics","snippet", "statistics"}));
     	ChannelListResponse response = request.setForUsername("VICE").execute();
     	System.out.println(response);
     }
@@ -144,10 +143,10 @@ public class YoutubeApiList
                   .build();
 
           // 3. Define the search request
-          YouTube.Search.List search = youtube.search().list("id,snippet");
+          YouTube.Search.List search = youtube.search().list(Arrays.asList(new String []{"id","snippet"}));
           search.setKey(apiKey);
           search.setQ("Google Developers Live"); // Your search query
-          search.setType("video"); // Restrict search to videos
+//          search.setType("video"); // Restrict search to videos
           search.setMaxResults(5L); // Retrieve max 5 results
 
           // 4. Execute the request and process the response
@@ -167,7 +166,7 @@ public class YoutubeApiList
           YouTube youtubeService = getService();
           // Define and execute the API request
           YouTube.Channels.List request = youtubeService.channels()
-              .list("snippet,contentDetails,statistics");
+              .list(Arrays.asList(new String []{"statistics","snippet", "statistics"}));
           ChannelListResponse response = request.setForUsername("GoogleDevelopers").execute();
           System.out.println(response);
 
