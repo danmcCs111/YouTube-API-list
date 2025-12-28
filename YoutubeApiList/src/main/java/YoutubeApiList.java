@@ -67,10 +67,10 @@ public class YoutubeApiList
     		for(YoutubeChannelVideo ycv : ycvs)
     		{
     			System.out.println(
-    					"Date Time: " + ycv.getUploadDate() + 
-    					" | Video Title: " + ycv.getTitle() + 
-    					" | Video ID: " + "www.youtube.com/watch?v=" + ycv.getVideoId() + 
-    					" | Thumbnail URL: " + ycv.getImageUrl());
+					"Date Time: " + ycv.getUploadDate() + 
+					" | Video Title: " + ycv.getFilteredTitle() + 
+					" | Video ID: " + "www.youtube.com/watch?v=" + ycv.getVideoId() + 
+					" | Thumbnail URL: " + ycv.getImageUrl());
     		}
     	}
     	

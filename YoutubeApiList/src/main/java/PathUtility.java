@@ -4,6 +4,9 @@ import java.util.Scanner;
 
 public class PathUtility 
 {
+	public static String [] htmlEscapes = new String [] {
+			"&#39;", "&amp;", "&quot;", "&copy;", "&gt;", "&lt;", "&trade;", "&apos;"
+	};
 	public static String readFileToString(File locationFile)
    	{
    		Scanner sc;
@@ -23,4 +26,16 @@ public class PathUtility
    		}
    		return fileContents;
    	}
+	
+	public static String filterTitle(String title)
+	{
+		title = title.replaceAll(" ", "_");
+		for(String htmlEscape : htmlEscapes)
+		{
+			title = title.replaceAll(htmlEscape, "");
+		}
+		title = title.replaceAll("[^a-zA-Z0-9_]*", "");
+		
+		return title;
+	}
 }
