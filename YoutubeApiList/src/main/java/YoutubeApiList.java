@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -61,7 +62,16 @@ public class YoutubeApiList
     	else if(args[0].equals("test3"))
     	{
     		YoutubeChannelVideosCollector ycvc = new YoutubeChannelVideosCollector();
-    		ycvc.collectYoutubeChannelVideos(args[1], args[2]);
+    		ArrayList<YoutubeChannelVideo> ycvs = ycvc.collectYoutubeChannelVideos(args[1], args[2]);
+    		
+    		for(YoutubeChannelVideo ycv : ycvs)
+    		{
+    			System.out.println(
+    					"Date Time: " + ycv.getUploadDate() + 
+    					" | Video Title: " + ycv.getTitle() + 
+    					" | Video ID: " + "www.youtube.com/watch?v=" + ycv.getVideoId() + 
+    					" | Thumbnail URL: " + ycv.getImageUrl());
+    		}
     	}
     	
     }

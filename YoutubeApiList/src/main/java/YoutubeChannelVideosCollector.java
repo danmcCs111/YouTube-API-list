@@ -3,6 +3,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -19,11 +20,19 @@ import com.google.api.services.youtube.model.Thumbnail;
 public class YoutubeChannelVideosCollector 
 {
 	private static YouTube youtube;
-	private ArrayList<YoutubeChannelVideo> youtubeChannelVideos;
+	private static int 
+		monthsOffset = -6;
+	private static long
+		maxResults = 2000L;
 	
-	public ArrayList<YoutubeChannelVideo> getYoutubeChannelVideos()
+	public static void setMonthsOffset(int monthsOffset)
 	{
-		return this.youtubeChannelVideos;
+		YoutubeChannelVideosCollector.monthsOffset = monthsOffset;
+	}
+	
+	public static void setMaxResults(long maxResults)
+	{
+		YoutubeChannelVideosCollector.maxResults = maxResults;
 	}
 	
 	public ArrayList<YoutubeChannelVideo> collectYoutubeChannelVideos(String apiKey, String youtubeHandleName) throws IOException
@@ -46,11 +55,11 @@ public class YoutubeChannelVideosCollector
     	YouTube.Search.List searchItemRequest = youtube.search().list(
     			Arrays.asList(new String []{"id", "snippet"}));
     	searchItemRequest.setChannelId(uploadsPlaylistId);
-    	String formatDateR = getRfc3339String(-6);
+    	String formatDateR = getRfc3339String(monthsOffset);
     	System.out.println(formatDateR);
     	
     	searchItemRequest.setPublishedAfter(formatDateR);
-    	searchItemRequest.setMaxResults(50L); // Max results per page (50 is max)
+    	searchItemRequest.setMaxResults(maxResults); // Max results per page 
     	searchItemRequest.setKey(apiKey);
 
     	List<SearchResult> allVideos = new ArrayList<>();
@@ -65,7 +74,6 @@ public class YoutubeChannelVideosCollector
     	    nextPageToken = playlistItemResponse.getNextPageToken(); // Get the next page token
     	}
 
-    	// Now 'allVideos' list contains all videos from the channel
     	for (SearchResult item : allVideos) 
     	{
     		String channelTitle = item.getSnippet().getChannelTitle();
@@ -77,13 +85,9 @@ public class YoutubeChannelVideosCollector
     	    DateTime dt = item.getSnippet().getPublishedAt();
     	    
     	    retVideos.add(new YoutubeChannelVideo(videoTitle, thumbUrl, videoId, dt));
-    	    
-    	    System.out.println(
-    	    		"Date Time: " + dt.toStringRfc3339() + 
-    	    		" | Video Title: " + videoTitle + 
-    	    		" | Video ID: " + "www.youtube.com/watch?v=" + videoId + 
-    	    		" | Thumbnail URL: " + thumbUrl);
     	}
+    	
+    	Collections.sort(retVideos, retVideos.get(0));
     	
     	return retVideos;
     }
