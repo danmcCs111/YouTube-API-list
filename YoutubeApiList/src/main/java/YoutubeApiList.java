@@ -7,6 +7,8 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.ChannelListResponse;
+import com.google.api.services.youtube.model.PlaylistItem;
+import com.google.api.services.youtube.model.PlaylistItemListResponse;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.client.json.JsonFactory;
@@ -20,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -70,8 +73,52 @@ public class YoutubeApiList
     		test1(args[1]);
     	else if(args[0].equals("test2"))
     		test2(args[1]);
+    	else if(args[0].equals("test3"))
+    		test3(args[1]);
     }
+    
+    public static void test3(String arg) throws IOException
+    {
+    	String apiKey = arg;
+    	youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), request -> {})
+                .setApplicationName("youtube-cmdline-search-sample")
+                .build();
+    	
+    	// Use the channels.list method with the 'contentDetails' part
+    	YouTube.Channels.List channelRequest = youtube.channels().list("contentDetails");
+    	// Identify the channel by ID, username, or handle
+    	channelRequest.setForUsername("VICE");
+//    	channelRequest.setId("UC_x5XG1OV2P6uZZ5FSM9Ttw"); // Example channel ID
+    	channelRequest.setKey(apiKey);
 
+    	ChannelListResponse channelResponse = channelRequest.execute();
+    	String uploadsPlaylistId = channelResponse.getItems().get(0)
+    	    .getContentDetails().getRelatedPlaylists().getUploads();
+    	
+    	// Use the playlistItems.list method with the 'snippet' and 'contentDetails' parts
+    	YouTube.PlaylistItems.List playlistItemRequest = youtube.playlistItems().list("snippet,contentDetails");
+    	playlistItemRequest.setPlaylistId(uploadsPlaylistId);
+    	playlistItemRequest.setMaxResults(50L); // Max results per page (50 is max)
+    	playlistItemRequest.setKey(apiKey);
+
+    	List<PlaylistItem> allVideos = new ArrayList<>();
+    	String nextPageToken = "";
+
+    	while (nextPageToken != null) {
+    	    playlistItemRequest.setPageToken(nextPageToken);
+    	    PlaylistItemListResponse playlistItemResponse = playlistItemRequest.execute();
+
+    	    allVideos.addAll(playlistItemResponse.getItems());
+    	    nextPageToken = playlistItemResponse.getNextPageToken(); // Get the next page token
+    	}
+
+    	// Now 'allVideos' list contains all videos from the channel
+    	for (PlaylistItem item : allVideos) {
+    	    String videoTitle = item.getSnippet().getTitle();
+    	    String videoId = item.getContentDetails().getVideoId();
+    	    System.out.println("Video Title: " + videoTitle + " | Video ID: " + videoId);
+    	}
+    }
     
     public static void test2(String arg)
     		throws GeneralSecurityException, IOException, GoogleJsonResponseException 
