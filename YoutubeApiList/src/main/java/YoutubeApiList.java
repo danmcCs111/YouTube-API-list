@@ -7,7 +7,8 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.ChannelListResponse;
-
+import com.google.api.services.youtube.model.SearchListResponse;
+import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -21,6 +22,7 @@ import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Scanner;
 
 public class YoutubeApiList 
@@ -61,63 +63,73 @@ public class YoutubeApiList
         return credential;
     }
     
-    public static void main(String[] args)
-            throws GeneralSecurityException, IOException, GoogleJsonResponseException 
+    public static void main(String[] args) 
+    		throws GoogleJsonResponseException, GeneralSecurityException, IOException
     {
-    		CLIENT_SECRETS = args[0];
-            YouTube youtubeService = getService();
-            // Define and execute the API request
-            YouTube.Channels.List request = youtubeService.channels()
-                .list("snippet,contentDetails,statistics");
-            ChannelListResponse response = request.setForUsername("VICE").execute();
-            System.out.println(response);
+    	if(args[0].equals("test1"))
+    		test1(args[1]);
+    	else if(args[0].equals("test2"))
+    		test2(args[1]);
     }
 
-//    public static void main(String[] args) 
-//    {
-//        // 1. Load your API key from a properties file or environment variable
-//        try {
-//            String apiKey = args[0];
-//
-//            // 2. Initialize the YouTube client
-//            youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), request -> {})
-//                    .setApplicationName("youtube-cmdline-search-sample")
-//                    .build();
-//
-//            // 3. Define the search request
-//            YouTube.Search.List search = youtube.search().list("id,snippet");
-//            search.setKey(apiKey);
-//            search.setQ("Google Developers Live"); // Your search query
-//            search.setType("video"); // Restrict search to videos
-//            search.setMaxResults(5L); // Retrieve max 5 results
-//
-//            // 4. Execute the request and process the response
-//            SearchListResponse searchResponse = search.execute();
-//            List<SearchResult> searchResultList = searchResponse.getItems();
-//
-//            if (searchResultList != null) 
-//            {
-//                System.out.println("Videos found:");
-//                for (SearchResult singleVideo : searchResultList) 
-//                {
-//                    System.out.println("- Title: " + singleVideo.getSnippet().getTitle() +
-//                                       " (Video ID: " + singleVideo.getId().getVideoId() + ")");
-//                }
-//            }
-//            
-//            YouTube youtubeService = getService();
-//            // Define and execute the API request
-//            YouTube.Channels.List request = youtubeService.channels()
-//                .list("snippet,contentDetails,statistics");
-//            ChannelListResponse response = request.setForUsername("GoogleDevelopers").execute();
-//            System.out.println(response);
-//
-//        } catch (IOException e) {
-//            System.err.println("There was an IO error: " + e.getCause() + " : " + e.getMessage());
-//        } catch (Throwable t) {
-//            t.printStackTrace();
-//        }
-//    }
+    
+    public static void test2(String arg)
+    		throws GeneralSecurityException, IOException, GoogleJsonResponseException 
+    {
+    	CLIENT_SECRETS = arg;
+    	YouTube youtubeService = getService();
+    	// Define and execute the API request
+    	YouTube.Channels.List request = youtubeService.channels()
+    			.list("snippet,contentDetails,statistics");
+    	ChannelListResponse response = request.setForUsername("VICE").execute();
+    	System.out.println(response);
+    }
+    
+    public static void test1(String arg)
+    {
+      // 1. Load your API key from a properties file or environment variable
+      try {
+          String apiKey = arg;
+
+          // 2. Initialize the YouTube client
+          youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), request -> {})
+                  .setApplicationName("youtube-cmdline-search-sample")
+                  .build();
+
+          // 3. Define the search request
+          YouTube.Search.List search = youtube.search().list("id,snippet");
+          search.setKey(apiKey);
+          search.setQ("Google Developers Live"); // Your search query
+          search.setType("video"); // Restrict search to videos
+          search.setMaxResults(5L); // Retrieve max 5 results
+
+          // 4. Execute the request and process the response
+          SearchListResponse searchResponse = search.execute();
+          List<SearchResult> searchResultList = searchResponse.getItems();
+
+          if (searchResultList != null) 
+          {
+              System.out.println("Videos found:");
+              for (SearchResult singleVideo : searchResultList) 
+              {
+                  System.out.println("- Title: " + singleVideo.getSnippet().getTitle() +
+                                     " (Video ID: " + singleVideo.getId().getVideoId() + ")");
+              }
+          }
+          
+          YouTube youtubeService = getService();
+          // Define and execute the API request
+          YouTube.Channels.List request = youtubeService.channels()
+              .list("snippet,contentDetails,statistics");
+          ChannelListResponse response = request.setForUsername("GoogleDevelopers").execute();
+          System.out.println(response);
+
+		} catch (IOException e) {
+		      System.err.println("There was an IO error: " + e.getCause() + " : " + e.getMessage());
+		} catch (Throwable t) {
+		      t.printStackTrace();
+		}
+    }
     
     public static String readFileToString(File locationFile)
    	{
