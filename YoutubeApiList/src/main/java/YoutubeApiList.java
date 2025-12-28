@@ -11,6 +11,7 @@ import com.google.api.services.youtube.model.PlaylistItem;
 import com.google.api.services.youtube.model.PlaylistItemListResponse;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
+import com.google.api.services.youtube.model.Thumbnail;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -114,8 +115,10 @@ public class YoutubeApiList
     	// Now 'allVideos' list contains all videos from the channel
     	for (PlaylistItem item : allVideos) {
     	    String videoTitle = item.getSnippet().getTitle();
+    	    Thumbnail thumb = item.getSnippet().getThumbnails().getMedium();
+    	    String thumbUrl = thumb.getUrl();
     	    String videoId = item.getContentDetails().getVideoId();
-    	    System.out.println("Video Title: " + videoTitle + " | Video ID: " + videoId);
+    	    System.out.println("Video Title: " + videoTitle + " | Video ID: " + videoId + " | Thumbnail URL: " + thumbUrl);
     	}
     }
     

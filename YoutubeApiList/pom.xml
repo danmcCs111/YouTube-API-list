@@ -12,8 +12,6 @@
 		    <version>v3-rev20251217-2.0.0</version>
 		</dependency>
 	
-		<!-- For generic Java applications (command-line, desktop) -->
-	    
 	    <dependency>
 	    <groupId>com.google.oauth-client</groupId>
 		    <artifactId>google-oauth-client-java6</artifactId>
@@ -32,7 +30,6 @@
 		    <version>1.39.0</version> <!-- Use the latest version -->
 		</dependency>
 		
-		<!-- https://mvnrepository.com/artifact/com.google.api-client/google-api-client-jackson2 -->
 		<!-- https://mvnrepository.com/artifact/com.google.api-client/google-api-client-jackson2 -->
 		<dependency>
 		    <groupId>com.google.api-client</groupId>
