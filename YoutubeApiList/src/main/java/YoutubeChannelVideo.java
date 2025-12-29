@@ -5,6 +5,7 @@ import com.google.api.client.util.DateTime;
 
 public class YoutubeChannelVideo implements Comparator<YoutubeChannelVideo>
 {
+	private static final String VIDEO_ID_PREFIX = "www.youtube.com/watch?v=";
 	private String 
 		title,
 		filteredTitle,
@@ -37,6 +38,10 @@ public class YoutubeChannelVideo implements Comparator<YoutubeChannelVideo>
 	public String getVideoId()
 	{
 		return this.videoId;
+	}
+	public String getVideoUrl()
+	{
+		return VIDEO_ID_PREFIX + this.videoId;
 	}
 
 	@Override

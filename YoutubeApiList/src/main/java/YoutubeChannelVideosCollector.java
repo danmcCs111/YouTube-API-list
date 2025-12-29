@@ -20,22 +20,17 @@ import com.google.api.services.youtube.model.Thumbnail;
 public class YoutubeChannelVideosCollector 
 {
 	private static YouTube youtube;
-	private static int 
-		monthsOffset = -6;
 	private static long
-		maxResults = 2000L;
-	
-	public static void setMonthsOffset(int monthsOffset)
-	{
-		YoutubeChannelVideosCollector.monthsOffset = monthsOffset;
-	}
+		maxResults = 1000L;
 	
 	public static void setMaxResults(long maxResults)
 	{
 		YoutubeChannelVideosCollector.maxResults = maxResults;
 	}
 	
-	public ArrayList<YoutubeChannelVideo> collectYoutubeChannelVideos(String apiKey, String youtubeHandleName) throws IOException
+	public ArrayList<YoutubeChannelVideo> collectYoutubeChannelVideos(
+			String apiKey, String youtubeHandleName, int calendarFieldOffset, int calendarOffsetValue) 
+			throws IOException
     {
     	ArrayList<YoutubeChannelVideo> retVideos = new ArrayList<YoutubeChannelVideo>();
     	
@@ -55,7 +50,7 @@ public class YoutubeChannelVideosCollector
     	YouTube.Search.List searchItemRequest = youtube.search().list(
     			Arrays.asList(new String []{"id", "snippet"}));
     	searchItemRequest.setChannelId(uploadsPlaylistId);
-    	String formatDateR = getRfc3339String(monthsOffset);
+    	String formatDateR = getRfc3339String(calendarFieldOffset, calendarOffsetValue);
     	System.out.println(formatDateR);
     	
     	searchItemRequest.setPublishedAfter(formatDateR);
@@ -92,11 +87,11 @@ public class YoutubeChannelVideosCollector
     	return retVideos;
     }
 	
-	public static String getRfc3339String(int monthsOffset)
+	public static String getRfc3339String(int fieldOffset, int offsetValue)
 	{
 		Calendar cal = Calendar.getInstance();
     	cal.setTimeZone(TimeZone.getTimeZone("UTC"));
-    	cal.add(Calendar.MONTH, monthsOffset);
+    	cal.add(fieldOffset, offsetValue);
     	Date d = cal.getTime();
     	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     	SimpleDateFormat sdf2 = new SimpleDateFormat("HH:MM:ss");

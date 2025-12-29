@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 
 public class YoutubeApiList 
@@ -62,14 +63,14 @@ public class YoutubeApiList
     	else if(args[0].equals("test3"))
     	{
     		YoutubeChannelVideosCollector ycvc = new YoutubeChannelVideosCollector();
-    		ArrayList<YoutubeChannelVideo> ycvs = ycvc.collectYoutubeChannelVideos(args[1], args[2]);
+    		ArrayList<YoutubeChannelVideo> ycvs = ycvc.collectYoutubeChannelVideos(args[1], args[2], Calendar.MONTH, -6);
     		
     		for(YoutubeChannelVideo ycv : ycvs)
     		{
     			System.out.println(
 					"Date Time: " + ycv.getUploadDate() + 
 					" | Video Title: " + ycv.getFilteredTitle() + 
-					" | Video ID: " + "www.youtube.com/watch?v=" + ycv.getVideoId() + 
+					" | Video ID: " + ycv.getVideoUrl() + 
 					" | Thumbnail URL: " + ycv.getImageUrl());
     		}
     	}
