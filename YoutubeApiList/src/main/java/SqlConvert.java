@@ -1,10 +1,11 @@
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 public class SqlConvert 
 {
 	private static final String 
 		INSERT_PREFIX = "Insert Into videodatabase.videoYoutube (" +
-				"ParentID_VideoYoutube_VideoYoutubeDatabase" + 
+				"ParentID_VideoYoutube_VideoYoutubeDatabase," + 
 				"Title_VideoYoutube_VideoYoutubeDatabase, " + 
 				"Url_VideoYoutube_VideoYoutubeDatabase, " +
 				"PosterImageUrl_VideoYoutube_VideoYoutubeDatabase, " +
@@ -23,7 +24,8 @@ public class SqlConvert
 			sql += surroundQuotesComma(ycv.getFilteredTitle());
 			sql += surroundQuotesComma(ycv.getVideoUrl());
 			sql += surroundQuotesComma(ycv.getImageUrl());
-			sql += surroundQuotesComma(ycv.getUploadDate().toString());
+			Timestamp t = new Timestamp(ycv.getUploadDate().getTime());
+			sql += surroundQuotesComma(t.toLocalDateTime().toString());
 			sql += INSERT_SUFFIX;
 			sql += "\n";
 		}
