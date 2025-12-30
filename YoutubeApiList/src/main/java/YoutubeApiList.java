@@ -78,7 +78,7 @@ public class YoutubeApiList
     		int second = (int) (timeDiff / 1000);//from Milliseconds to days.
     		System.out.println("days lapsed: " + days);
     		retTimeAdjust[0] = Calendar.SECOND;
-    		retTimeAdjust[1] = -second;
+    		retTimeAdjust[1] = -second + 1; // add one second to not include current.
     	}
     	
     	return retTimeAdjust;
