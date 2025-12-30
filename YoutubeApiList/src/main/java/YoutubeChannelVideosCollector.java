@@ -29,7 +29,7 @@ public class YoutubeChannelVideosCollector
 	}
 	
 	public ArrayList<YoutubeChannelVideo> collectYoutubeChannelVideos(
-			String apiKey, String youtubeHandleName, int calendarFieldOffset, int calendarOffsetValue) 
+			int parentId, String apiKey, String youtubeHandleName, int calendarFieldOffset, int calendarOffsetValue) 
 			throws IOException
     {
     	ArrayList<YoutubeChannelVideo> retVideos = new ArrayList<YoutubeChannelVideo>();
@@ -79,7 +79,7 @@ public class YoutubeChannelVideosCollector
     	    String videoId = item.getId().getVideoId();
     	    DateTime dt = item.getSnippet().getPublishedAt();
     	    
-    	    retVideos.add(new YoutubeChannelVideo(videoTitle, thumbUrl, videoId, dt));
+    	    retVideos.add(new YoutubeChannelVideo(parentId, videoTitle, thumbUrl, videoId, dt));
     	}
     	
     	Collections.sort(retVideos, retVideos.get(0));

@@ -6,6 +6,8 @@ import com.google.api.client.util.DateTime;
 public class YoutubeChannelVideo implements Comparator<YoutubeChannelVideo>
 {
 	private static final String VIDEO_ID_PREFIX = "www.youtube.com/watch?v=";
+	
+	private int parentId = -1;
 	private String 
 		title,
 		filteredTitle,
@@ -13,8 +15,9 @@ public class YoutubeChannelVideo implements Comparator<YoutubeChannelVideo>
 		videoId;
 	private Date dt;
 	
-	public YoutubeChannelVideo(String title, String imageUrl, String videoId, DateTime dt)
+	public YoutubeChannelVideo(int parentId, String title, String imageUrl, String videoId, DateTime dt)
 	{
+		this.parentId = parentId;
 		this.title = title;
 		filteredTitle = PathUtility.filterTitle(this.title);
 		
@@ -23,6 +26,11 @@ public class YoutubeChannelVideo implements Comparator<YoutubeChannelVideo>
 		this.dt = new Date(dt.getValue());
 	}
 	
+	
+	public int getParentId()
+	{
+		return this.parentId;
+	}
 	public Date getUploadDate()
 	{
 		return this.dt;

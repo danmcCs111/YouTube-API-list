@@ -63,7 +63,10 @@ public class YoutubeApiList
     	else if(args[0].equals("test3"))
     	{
     		YoutubeChannelVideosCollector ycvc = new YoutubeChannelVideosCollector();
-    		ArrayList<YoutubeChannelVideo> ycvs = ycvc.collectYoutubeChannelVideos(args[1], args[2], Calendar.MONTH, -6);
+    		ArrayList<YoutubeChannelVideo> ycvs = ycvc.collectYoutubeChannelVideos(-1, args[1], args[2], Calendar.MONTH, -6);//TODO
+    		
+    		String sql = SqlConvert.convertYoutubeChannelVideos(ycvs);
+    		System.out.println(sql);
     		
     		for(YoutubeChannelVideo ycv : ycvs)
     		{
