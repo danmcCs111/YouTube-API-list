@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 
 public class YoutubeApiList 
 {
@@ -28,7 +29,10 @@ public class YoutubeApiList
     private static final String APPLICATION_NAME = "API code samples";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     
-    public static YouTube getService(String secretsFileLocation) throws GeneralSecurityException, IOException 
+    private static final int []
+    	DEFAULT_TIMESPAN = new int [] {Calendar.MONTH, -6};
+    
+    private static YouTube getService(String secretsFileLocation) throws GeneralSecurityException, IOException 
     {
         final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
         Credential credential = authorize(httpTransport, secretsFileLocation);
@@ -37,7 +41,7 @@ public class YoutubeApiList
             .build();
     }
     
-    public static Credential authorize(final NetHttpTransport httpTransport, String secretsFileLocation) throws IOException 
+    private static Credential authorize(final NetHttpTransport httpTransport, String secretsFileLocation) throws IOException 
     {
     	File f = new File(secretsFileLocation);
     	String str = PathUtility.readFileToString(f);
@@ -53,17 +57,70 @@ public class YoutubeApiList
         return credential;
     }
     
+    private static int [] getTimespanScan(long timestamp)
+    {
+    	Date d = new Date(timestamp);
+    	Date current = Calendar.getInstance().getTime();
+    	Calendar cal = Calendar.getInstance();
+    	cal.add(DEFAULT_TIMESPAN[0], DEFAULT_TIMESPAN[1]);
+    	Date currentMinusDefault = cal.getTime();
+    	
+    	int [] retTimeAdjust = new int [2];
+    	if (timestamp == -1 || currentMinusDefault.after(d))
+    	{
+    		System.out.println("default: " + d.toString());
+    		return DEFAULT_TIMESPAN;
+    	}
+    	else
+    	{
+    		long timeDiff = current.getTime() - d.getTime();
+    		long days = (timeDiff / 1000 / 60 / 60 / 24);//from Milliseconds to days.
+    		System.out.println("days lapsed: " + days);
+    		retTimeAdjust[0] = Calendar.DAY_OF_MONTH;
+    		retTimeAdjust[1] = -(int) days;
+    	}
+    	
+    	return retTimeAdjust;
+    }
+    
     public static void main(String[] args) 
     		throws GoogleJsonResponseException, GeneralSecurityException, IOException
     {
-    	if(args[0].equals("test1"))
-    		TestYoutubeResponse.test1(args[1], getService(args[2]));
-    	else if(args[0].equals("test2"))
-    		TestYoutubeResponse.test2(args[1], getService(args[2]));
-    	else if(args[0].equals("test3"))
+    	if(args.length != 5)
+    	{
+    		System.out.println(
+    				"Enter: \n" + 
+    				"Operation, \n" + 
+    				"API Key, \n" +
+    				"Parent Primary Key, \n" +
+    				"Channel Name, \n" +
+    				"last Timestamp \n"
+    		);
+    		return;
+    	}
+    	String operation = args[0];
+    	String apiKey = args[1];
+    	int parentId = Integer.valueOf(args[2]);
+    	String handleName = args[3];
+    	long lastTimestamp = Long.valueOf(args[4]);
+    	
+    	if(operation.equals("test1"))
+    	{
+    		int timeSpan[] = getTimespanScan(lastTimestamp);
+    		Calendar cal = Calendar.getInstance();
+    		cal.add(timeSpan[0], timeSpan[1]);
+    		System.out.println(cal.getTime().toString());
+    	}
+    	else if(operation.equals("test2"))
+    	{
+//    		TestYoutubeResponse.test2(args[1], getService(args[2]));
+    	}
+    	else if(operation.equals("test3"))
     	{
     		YoutubeChannelVideosCollector ycvc = new YoutubeChannelVideosCollector();
-    		ArrayList<YoutubeChannelVideo> ycvs = ycvc.collectYoutubeChannelVideos(-1, args[1], args[2], Calendar.MONTH, -6);//TODO
+    		int timeSpan[] = getTimespanScan(lastTimestamp);
+    		ArrayList<YoutubeChannelVideo> ycvs = ycvc.collectYoutubeChannelVideos(
+    				parentId, apiKey, handleName, timeSpan[0], timeSpan[1]);
     		
     		String sql = SqlConvert.convertYoutubeChannelVideos(ycvs);
     		System.out.println(sql);
@@ -77,7 +134,6 @@ public class YoutubeApiList
 					" | Thumbnail URL: " + ycv.getImageUrl());
     		}
     	}
-    	
     }
     
 }
