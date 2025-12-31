@@ -31,6 +31,10 @@ public class YoutubeApiList
     
     private static final int []
     	DEFAULT_TIMESPAN = new int [] {Calendar.MONTH, -6};
+    private static final String [] 
+    		OPERATION_OPTIONS = new String [] {
+    				"showResult", "test1", "test2"
+    		};
     
     private static YouTube getService(String secretsFileLocation) throws GeneralSecurityException, IOException 
     {
@@ -107,18 +111,7 @@ public class YoutubeApiList
     	long lastTimestamp = Long.valueOf(args[4]);
     	String absoluteFileLocationInsert = args[5];
     	
-    	if(operation.equals("test1"))
-    	{
-    		int timeSpan[] = getTimespanScan(lastTimestamp);
-    		Calendar cal = Calendar.getInstance();
-    		cal.add(timeSpan[0], timeSpan[1]);
-    		System.out.println(cal.getTime().toString());
-    	}
-    	else if(operation.equals("test2"))
-    	{
-//    		TestYoutubeResponse.test2(args[1], getService(args[2]));
-    	}
-    	else if(operation.equals("test3"))
+    	if(operation.equals(OPERATION_OPTIONS[0]))
     	{
     		YoutubeChannelVideosCollector ycvc = new YoutubeChannelVideosCollector();
     		int timeSpan[] = getTimespanScan(lastTimestamp);
@@ -133,11 +126,22 @@ public class YoutubeApiList
     		for(YoutubeChannelVideo ycv : ycvs)
     		{
     			System.out.println(
-					"Date Time: " + ycv.getUploadDate() + 
-					" | Video Title: " + ycv.getFilteredTitle() + 
-					" | Video ID: " + ycv.getVideoUrl() + 
-					" | Thumbnail URL: " + ycv.getImageUrl());
+    					"Date Time: " + ycv.getUploadDate() + 
+    					" | Video Title: " + ycv.getFilteredTitle() + 
+    					" | Video ID: " + ycv.getVideoUrl() + 
+    					" | Thumbnail URL: " + ycv.getImageUrl());
     		}
+    	}
+    	else if(operation.equals(OPERATION_OPTIONS[1]))
+    	{
+    		int timeSpan[] = getTimespanScan(lastTimestamp);
+    		Calendar cal = Calendar.getInstance();
+    		cal.add(timeSpan[0], timeSpan[1]);
+    		System.out.println(cal.getTime().toString());
+    	}
+    	else if(operation.equals(OPERATION_OPTIONS[2]))
+    	{
+//    		TestYoutubeResponse.test2(args[1], getService(args[2]));
     	}
     }
     
