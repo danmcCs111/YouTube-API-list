@@ -1,5 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class PathUtility 
@@ -26,6 +28,19 @@ public class PathUtility
    		}
    		return fileContents;
    	}
+	
+	public static void writeStringToFile(File locationFile, String contents)
+	{
+		try {
+			FileWriter myWriter = new FileWriter(locationFile);
+			myWriter.write(contents);	
+			myWriter.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	public static String filterTitle(String title)
 	{

@@ -87,7 +87,7 @@ public class YoutubeApiList
     public static void main(String[] args) 
     		throws GoogleJsonResponseException, GeneralSecurityException, IOException
     {
-    	if(args.length != 5)
+    	if(args.length != 6)
     	{
     		System.out.println(
     				"Enter: \n" + 
@@ -95,7 +95,8 @@ public class YoutubeApiList
     				"API Key, \n" +
     				"Parent Primary Key, \n" +
     				"Channel Name, \n" +
-    				"last Timestamp \n"
+    				"Last Timestamp \n" + 
+    				"Absolute File Output Path For Insert \n"
     		);
     		return;
     	}
@@ -104,6 +105,7 @@ public class YoutubeApiList
     	int parentId = Integer.valueOf(args[2]);
     	String handleName = args[3];
     	long lastTimestamp = Long.valueOf(args[4]);
+    	String absoluteFileLocationInsert = args[5];
     	
     	if(operation.equals("test1"))
     	{
@@ -125,6 +127,8 @@ public class YoutubeApiList
     		
     		String sql = SqlConvert.convertYoutubeChannelVideos(ycvs);
     		System.out.println(sql);
+    		File f = new File(absoluteFileLocationInsert);
+    		PathUtility.writeStringToFile(f, sql);
     		
     		for(YoutubeChannelVideo ycv : ycvs)
     		{
