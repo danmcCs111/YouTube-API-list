@@ -80,7 +80,11 @@ public class YoutubeChannelVideosCollector
     	    String videoId = item.getId().getVideoId();
     	    DateTime dt = item.getSnippet().getPublishedAt();
     	    
-    	    retVideos.add(new YoutubeChannelVideo(parentId, videoTitle, thumbUrl, videoId, dt));
+    	    if(videoId != null)
+    	    {
+    	    	retVideos.add(new YoutubeChannelVideo(parentId, videoTitle, thumbUrl, videoId, dt));
+    	    }
+    	    
     	}
     	
     	Collections.sort(retVideos, retVideos.get(0));
