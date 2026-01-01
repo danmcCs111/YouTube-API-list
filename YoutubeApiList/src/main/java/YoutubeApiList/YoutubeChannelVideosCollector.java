@@ -87,7 +87,7 @@ public class YoutubeChannelVideosCollector
     	    
     	}
     	
-    	Collections.sort(retVideos, retVideos.get(0));
+    	Collections.sort(retVideos, new YoutubeChannelVideo());
     	
     	return retVideos;
     }

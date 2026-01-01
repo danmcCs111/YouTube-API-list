@@ -16,6 +16,11 @@ public class YoutubeChannelVideo implements Comparator<YoutubeChannelVideo>
 		videoId;
 	private Date dt;
 	
+	public YoutubeChannelVideo()
+	{
+		
+	}
+	
 	public YoutubeChannelVideo(int parentId, String title, String imageUrl, String videoId, DateTime dt)
 	{
 		this.parentId = parentId;
@@ -52,7 +57,7 @@ public class YoutubeChannelVideo implements Comparator<YoutubeChannelVideo>
 	{
 		return VIDEO_ID_PREFIX + this.videoId;
 	}
-
+	
 	@Override
 	public int compare(YoutubeChannelVideo o1, YoutubeChannelVideo o2) 
 	{

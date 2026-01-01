@@ -6,6 +6,7 @@ public class SqlConvert
 {
 	private static final String 
 		INSERT_PREFIX = "Insert Into videodatabase.videoYoutube (" +
+				"Id_VideoYoutube_VideoYoutubeDatabase, " + 
 				"ParentID_VideoYoutube_VideoYoutubeDatabase," + 
 				"Title_VideoYoutube_VideoYoutubeDatabase, " + 
 				"Url_VideoYoutube_VideoYoutubeDatabase, " +
@@ -21,6 +22,7 @@ public class SqlConvert
 		for(YoutubeChannelVideo ycv : youtubeChannelVideos)
 		{
 			sql += INSERT_PREFIX;
+			sql += surroundQuotesComma(ycv.getVideoId());
 			sql += ycv.getParentId() + ", ";
 			sql += surroundQuotesComma(ycv.getFilteredTitle());
 			sql += surroundQuotesComma(ycv.getVideoUrl());
