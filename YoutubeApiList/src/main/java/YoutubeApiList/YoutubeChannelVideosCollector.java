@@ -22,7 +22,7 @@ public class YoutubeChannelVideosCollector
 {
 	private static YouTube youtube;
 	private static long
-		maxResults = 1000L;
+		maxResults = 50L;
 	
 	public static void setMaxResults(long maxResults)
 	{
