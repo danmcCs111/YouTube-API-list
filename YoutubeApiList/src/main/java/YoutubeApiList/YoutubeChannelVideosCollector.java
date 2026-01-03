@@ -20,19 +20,20 @@ import com.google.api.services.youtube.model.Thumbnail;
 
 public class YoutubeChannelVideosCollector 
 {
-	private static YouTube youtube;
+	private static YouTube 
+		youtube;
+	private static int
+		maxResultsPerDay = 5;
 	private static long
-		maxResults = 50L;
-	
-	public static void setMaxResults(long maxResults)
-	{
-		YoutubeChannelVideosCollector.maxResults = maxResults;
-	}
+		maxResults = 500L;//set through setMaxResults
+		
 	
 	public ArrayList<YoutubeChannelVideo> collectYoutubeChannelVideos(
 			int parentId, String apiKey, String youtubeHandleName, int calendarFieldOffset, int calendarOffsetValue) 
 			throws IOException
     {
+		setMaxResults(calendarFieldOffset, calendarOffsetValue);
+		
     	ArrayList<YoutubeChannelVideo> retVideos = new ArrayList<YoutubeChannelVideo>();
     	
     	youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), request -> {})
@@ -91,6 +92,28 @@ public class YoutubeChannelVideosCollector
     	
     	return retVideos;
     }
+	
+	private static void setMaxResults(int fieldOffset, int offsetValue)
+	{
+		Calendar cal = Calendar.getInstance();
+		cal.add(fieldOffset, offsetValue);
+		Date offsetDate = cal.getTime();
+		
+		Calendar calNow = Calendar.getInstance();
+		Date nowDate = calNow.getTime();
+		
+		long timeDiff = nowDate.getTime() - offsetDate.getTime();
+		long days = (timeDiff / 1000 / 60 / 60 / 24);//from Milliseconds to days.
+		System.out.println("days lapsed: " + days);
+		
+//		System.out.println("minimium days for maxresults count: " + YoutubeChannelVideosCollector.minimumDays);
+		
+//		days = (days < YoutubeChannelVideosCollector.minimumDays)
+//				? YoutubeChannelVideosCollector.minimumDays
+//				: days;
+		
+		YoutubeChannelVideosCollector.maxResults = YoutubeChannelVideosCollector.maxResultsPerDay * days;
+	}
 	
 	public static String getRfc3339String(int fieldOffset, int offsetValue)
 	{
