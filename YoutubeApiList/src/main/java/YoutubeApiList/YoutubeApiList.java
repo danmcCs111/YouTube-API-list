@@ -95,7 +95,7 @@ public class YoutubeApiList
     public static void main(String[] args) 
     		throws GoogleJsonResponseException, GeneralSecurityException, IOException
     {
-    	if(args.length != 6)
+    	if(args.length != 7)
     	{
     		System.out.println(
     				"Enter: \n" + 
