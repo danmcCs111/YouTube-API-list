@@ -7,6 +7,9 @@ import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
+
+import YoutubeApiList.SqlConvert.SqlType;
+
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -96,21 +99,23 @@ public class YoutubeApiList
     	{
     		System.out.println(
     				"Enter: \n" + 
-    				"Operation, \n" + 
-    				"API Key, \n" +
-    				"Parent Primary Key, \n" +
-    				"Channel Name, \n" +
-    				"Last Timestamp \n" + 
-    				"Absolute File Output Path For Insert \n"
+    				"1) Operation, \n" + 
+    				"2) SQL type (SQL, SQLITE), \n" +		
+    				"3) API Key, \n" +
+    				"4) Parent Primary Key, \n" +
+    				"5) Channel Name, \n" +
+    				"6) Last Timestamp \n" + 
+    				"7) Absolute File Output Path For Insert \n"
     		);
     		return;
     	}
     	String operation = args[0];
-    	String apiKey = args[1];
-    	int parentId = Integer.valueOf(args[2]);
-    	String handleName = args[3];
-    	long lastTimestamp = Long.valueOf(args[4]);
-    	String absoluteFileLocationInsert = args[5];
+    	String sqlType = args[1];
+    	String apiKey = args[2];
+    	int parentId = Integer.valueOf(args[3]);
+    	String handleName = args[4];
+    	long lastTimestamp = Long.valueOf(args[5]);
+    	String absoluteFileLocationInsert = args[6];
     	
     	if(operation.equals(OPERATION_OPTIONS[0]))
     	{
@@ -119,7 +124,7 @@ public class YoutubeApiList
     		ArrayList<YoutubeChannelVideo> ycvs = ycvc.collectYoutubeChannelVideos(
     				parentId, apiKey, handleName, timeSpan[0], timeSpan[1]);
     		
-    		String sql = SqlConvert.convertYoutubeChannelVideos(ycvs);
+    		String sql = SqlConvert.convertYoutubeChannelVideos(ycvs, SqlType.getType(sqlType));
     		System.out.println(sql);
     		File f = new File(absoluteFileLocationInsert);
     		PathUtility.writeStringToFile(f, sql);
