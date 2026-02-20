@@ -1,4 +1,6 @@
 #!/bin/bash
+
+cd "$(dirname "$0")"
 typeOs=`uname`
 jarFiles=$(find target/dependency/ -name *.jar)
 
@@ -10,7 +12,11 @@ else
 	classpath=$(echo ${jarFiles[@]} | sed 's/ /;/g')";target/YoutubeApiList-0.0.1-SNAPSHOT.jar"
 fi
 
+echo "$@"
 echo $classpath
 
-java -cp "$classpath" YoutubeApiList.YoutubeApiList
+
+java -cp "$classpath" YoutubeApiList.YoutubeApiList "$@"
+
+cd -
 
