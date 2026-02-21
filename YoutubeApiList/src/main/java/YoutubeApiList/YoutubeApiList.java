@@ -28,17 +28,27 @@ import java.util.Date;
 
 public class YoutubeApiList 
 {
-    private static final Collection<String> SCOPES =
-        Arrays.asList("https://www.googleapis.com/auth/youtube.readonly");
-    private static final String APPLICATION_NAME = "API code samples";
-    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final Collection<String> 
+    	SCOPES = Arrays.asList("https://www.googleapis.com/auth/youtube.readonly");
+    private static final String 
+    	APPLICATION_NAME = "API code samples";
+    private static final JsonFactory 
+    	JSON_FACTORY = JacksonFactory.getDefaultInstance();
     
-    private static final int []
-    	DEFAULT_TIMESPAN = new int [] {Calendar.MONTH, -6};
+    private static final int [] []
+    	DEFAULT_TIMESPAN = new int [] [] {
+    	{Calendar.MONTH, -6}, 
+    	{Calendar.MINUTE, 0}
+    };
     private static final String [] 
-    		OPERATION_OPTIONS = new String [] {
-    				"showResult", "test1", "test2"
-    		};
+		OPERATION_OPTIONS = new String [] {
+			"showResult", "test1", "test2"
+	};
+    
+    public static void setTimespan(int CalendarSetting, int value)
+    {
+    	
+    }
     
     private static YouTube getService(String secretsFileLocation) throws GeneralSecurityException, IOException 
     {
@@ -70,14 +80,14 @@ public class YoutubeApiList
     	Date d = new Date(timestamp);
     	Date current = Calendar.getInstance().getTime();
     	Calendar cal = Calendar.getInstance();
-    	cal.add(DEFAULT_TIMESPAN[0], DEFAULT_TIMESPAN[1]);
+    	cal.add(DEFAULT_TIMESPAN[0][0], DEFAULT_TIMESPAN[0][1]);
     	Date currentMinusDefault = cal.getTime();
     	
     	int [] retTimeAdjust = new int [2];
     	if (timestamp == -1 || currentMinusDefault.after(d))
     	{
     		System.out.println("default: " + d.toString());
-    		return DEFAULT_TIMESPAN;
+    		return DEFAULT_TIMESPAN[0];
     	}
     	else
     	{
