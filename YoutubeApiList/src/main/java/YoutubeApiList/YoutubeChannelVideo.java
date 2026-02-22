@@ -6,15 +6,18 @@ import com.google.api.client.util.DateTime;
 
 public class YoutubeChannelVideo implements Comparator<YoutubeChannelVideo>
 {
-	private static final String VIDEO_ID_PREFIX = "www.youtube.com/watch?v=";
+	private static final String 
+		VIDEO_ID_PREFIX = "www.youtube.com/watch?v=";
 	
-	private int parentId = -1;
+	private int 
+		parentId = -1;
 	private String 
 		title,
 		filteredTitle,
 		imageUrl,
 		videoId;
-	private Date dt;
+	private Date 
+		dt;
 	
 	public YoutubeChannelVideo()
 	{

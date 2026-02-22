@@ -26,13 +26,33 @@ public class YoutubeChannelVideosCollector
 		maxResultsPerDay = 5;
 	private static long
 		maxResults = 500L;//set through setMaxResults
-		
+	
+	
+	public ArrayList<YoutubeChannelVideo> collectYoutubeChannelVideos(
+			int parentId, String apiKey, String youtubeHandleName, 
+			int calendarFieldOffsetBegin, int calendarOffsetValueBegin,
+			int calendarFieldOffsetEnd, int calendarOffsetValueEnd) 
+			throws IOException
+    {
+		setMaxResults(calendarFieldOffsetBegin, calendarOffsetValueBegin,
+				calendarFieldOffsetEnd, calendarOffsetValueEnd);
+		String formatDateR = getRfc3339String(calendarFieldOffsetBegin, calendarOffsetValueBegin);
+		return collectYoutubeChannelVideos(parentId, apiKey, youtubeHandleName, formatDateR);
+    }
 	
 	public ArrayList<YoutubeChannelVideo> collectYoutubeChannelVideos(
 			int parentId, String apiKey, String youtubeHandleName, int calendarFieldOffset, int calendarOffsetValue) 
 			throws IOException
-    {
+	{
 		setMaxResults(calendarFieldOffset, calendarOffsetValue);
+		String formatDateR = getRfc3339String(calendarFieldOffset, calendarOffsetValue);
+		return collectYoutubeChannelVideos(parentId, apiKey, youtubeHandleName, formatDateR);
+	}
+	
+	public ArrayList<YoutubeChannelVideo> collectYoutubeChannelVideos(
+			int parentId, String apiKey, String youtubeHandleName, String formattedDateRfc3339) 
+			throws IOException
+    {
 		
     	ArrayList<YoutubeChannelVideo> retVideos = new ArrayList<YoutubeChannelVideo>();
     	
@@ -52,10 +72,10 @@ public class YoutubeChannelVideosCollector
     	YouTube.Search.List searchItemRequest = youtube.search().list(
     			Arrays.asList(new String []{"id", "snippet"}));
     	searchItemRequest.setChannelId(uploadsPlaylistId);
-    	String formatDateR = getRfc3339String(calendarFieldOffset, calendarOffsetValue);
-    	System.out.println(formatDateR);
     	
-    	searchItemRequest.setPublishedAfter(formatDateR);
+    	System.out.println(formattedDateRfc3339);
+    	
+    	searchItemRequest.setPublishedAfter(formattedDateRfc3339);
     	searchItemRequest.setMaxResults(maxResults); // Max results per page 
     	searchItemRequest.setKey(apiKey);
 
@@ -106,11 +126,23 @@ public class YoutubeChannelVideosCollector
 		long days = (timeDiff / 1000 / 60 / 60 / 24);//from Milliseconds to days.
 		System.out.println("days lapsed: " + days);
 		
-//		System.out.println("minimium days for maxresults count: " + YoutubeChannelVideosCollector.minimumDays);
+		YoutubeChannelVideosCollector.maxResults = YoutubeChannelVideosCollector.maxResultsPerDay * days;
+	}
+	
+	private static void setMaxResults(int fieldOffsetBegin, int offsetValueBegin, 
+			int fieldOffsetEnd, int offsetValueEnd)
+	{
+		Calendar cal = Calendar.getInstance();
+		cal.add(fieldOffsetBegin, offsetValueBegin);
+		Date beginDate = cal.getTime();
 		
-//		days = (days < YoutubeChannelVideosCollector.minimumDays)
-//				? YoutubeChannelVideosCollector.minimumDays
-//				: days;
+		Calendar cal2 = Calendar.getInstance();
+		cal2.add(fieldOffsetEnd, offsetValueEnd);
+		Date endDate = cal2.getTime();
+		
+		long timeDiff = endDate.getTime() - beginDate.getTime();
+		long days = (timeDiff / 1000 / 60 / 60 / 24);//from Milliseconds to days.
+		System.out.println("days in timespan: " + days);
 		
 		YoutubeChannelVideosCollector.maxResults = YoutubeChannelVideosCollector.maxResultsPerDay * days;
 	}

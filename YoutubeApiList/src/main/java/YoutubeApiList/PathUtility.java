@@ -7,7 +7,8 @@ import java.util.Scanner;
 
 public class PathUtility 
 {
-	public static String [] htmlEscapes = new String [] {
+	public static String [] 
+		htmlEscapes = new String [] {
 			"&#39;", "&amp;", "&quot;", "&copy;", "&gt;", "&lt;", "&trade;", "&apos;"
 	};
 	public static String readFileToString(File locationFile)

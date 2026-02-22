@@ -55,7 +55,7 @@ public class YoutubeApiList
     	parentId;
     private long 
     	lastTimestamp,
-    	beginTimestamp,
+    	beginTimestamp,//API limited.
     	endTimestamp;
     
     public YoutubeApiList(
@@ -68,6 +68,7 @@ public class YoutubeApiList
 		this.handleName = handleName;
 		this.absoluteFileLocationInsert = absoluteFileLocationInsert;
 		this.parentId = parentId;
+		
 		this.lastTimestamp = lastTimestamp;
     }
     
@@ -81,6 +82,8 @@ public class YoutubeApiList
 		this.handleName = handleName;
 		this.absoluteFileLocationInsert = absoluteFileLocationInsert;
 		this.parentId = parentId;
+		
+		this.lastTimestamp = beginTimestamp;
 		this.beginTimestamp = beginTimestamp;
 		this.endTimestamp = endTimestamp;
     }
@@ -147,6 +150,7 @@ public class YoutubeApiList
     	{
     		YoutubeChannelVideosCollector ycvc = new YoutubeChannelVideosCollector();
     		int timeSpan[] = getTimespanScan(lastTimestamp);
+    		
     		ArrayList<YoutubeChannelVideo> ycvs = ycvc.collectYoutubeChannelVideos(
     				parentId, apiKey, handleName, timeSpan[0], timeSpan[1]);
     		
