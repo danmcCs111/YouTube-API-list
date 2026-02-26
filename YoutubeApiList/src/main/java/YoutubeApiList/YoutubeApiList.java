@@ -124,10 +124,9 @@ public class YoutubeApiList
     	Date current = Calendar.getInstance().getTime();
     	Calendar cal = Calendar.getInstance();
     	cal.add(timespanBeginEnd[0][0], timespanBeginEnd[0][1]);
-    	Date currentMinusDefault = cal.getTime();
     	
     	int [] retTimeAdjust = new int [2];
-    	if (timestamp == -1 || currentMinusDefault.after(d))
+    	if (timestamp == -1)
     	{
     		System.out.println("default: " + d.toString());
     		return timespanBeginEnd[0];
