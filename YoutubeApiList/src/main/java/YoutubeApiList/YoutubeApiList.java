@@ -3,7 +3,6 @@ import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
@@ -36,7 +35,7 @@ public class YoutubeApiList
     	JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String [] 
     	OPERATION_OPTIONS = new String [] {
-    		"showResult", "test1", "test2"
+    		"showResult", "collectDuration", "test2"
     };
     private static final int [] []
     	DEFAULT_TIMESPAN = new int [] [] {
@@ -54,9 +53,11 @@ public class YoutubeApiList
     private int
     	parentId;
     private long 
-    	lastTimestamp,
-    	beginTimestamp,//API limited.
-    	endTimestamp;
+    	lastTimestamp;
+//    	beginTimestamp,//API limited.
+//    	endTimestamp;
+    private String [] 
+    	videoIds = null;
     
     public YoutubeApiList(
     		String operation, String sqlType, String apiKey, String handleName, String absoluteFileLocationInsert,
@@ -84,13 +85,14 @@ public class YoutubeApiList
 		this.parentId = parentId;
 		
 		this.lastTimestamp = beginTimestamp;
-		this.beginTimestamp = beginTimestamp;
-		this.endTimestamp = endTimestamp;
+//		this.beginTimestamp = beginTimestamp;
+//		this.endTimestamp = endTimestamp;
     }
     
-    public static void setTimespan(int CalendarSetting, int value)
+    
+    public void setVideoIds(String [] videoIds)
     {
-    	
+    	this.videoIds = videoIds;
     }
     
     private static YouTube getService(String secretsFileLocation) throws GeneralSecurityException, IOException 
@@ -167,12 +169,17 @@ public class YoutubeApiList
     					" | Thumbnail URL: " + ycv.getImageUrl());
     		}
     	}
-    	else if(operation.equals(OPERATION_OPTIONS[1]))
+    	else if(operation.equals(OPERATION_OPTIONS[1])) //collect duration
     	{
-    		int timeSpan[] = getTimespanScan(lastTimestamp);
-    		Calendar cal = Calendar.getInstance();
-    		cal.add(timeSpan[0], timeSpan[1]);
-    		System.out.println(cal.getTime().toString());
+    		YoutubeChannelVideosCollector ycvc = new YoutubeChannelVideosCollector();
+    		for(String videoId : videoIds)
+    		{
+    			String duration = ycvc.collectYoutubeVideoDuration(videoId, apiKey);
+    			String sql = SqlConvert.createUpdateYoutubeChannelVideo(duration, videoId, SqlType.SQLite);
+    			System.out.println(sql);
+        		File f = new File(absoluteFileLocationInsert);
+        		PathUtility.writeStringToFile(f, sql);
+    		}
     	}
     	else if(operation.equals(OPERATION_OPTIONS[2]))
     	{
@@ -180,10 +187,11 @@ public class YoutubeApiList
     	}
     }
     
-    public static void main(String[] args) 
-    		throws GoogleJsonResponseException, GeneralSecurityException, IOException
+    public static YoutubeApiList parseArgs(String [] args)
     {
-    	if(args.length != 7 && args.length != 8)
+    	YoutubeApiList yal = null;
+    	
+    	if(args.length < 7)
     	{
     		System.out.println(
     				"Enter: \n" + 
@@ -192,14 +200,12 @@ public class YoutubeApiList
     				"3) API Key, \n" +
     				"4) Parent Primary Key, \n" +
     				"5) Channel Name, \n" +
-    				"6) Last Timestamp / Begin & End Timestamps \n" + 
+    				"6) Last Timestamp \n" + 
     				"7) Absolute File Output Path For Insert \n"
     		);
-    		return;
+    		return null;
     	}
     	
-    	YoutubeApiList 
-    		yal = null;
     	String 
     		operation = args[0],
 	    	sqlType = args[1],
@@ -208,23 +214,27 @@ public class YoutubeApiList
     	int 
     		parentId = Integer.valueOf(args[3]);
     	
-    	if(args.length == 7)
+		long lastTimestamp = Long.valueOf(args[5]);
+		String absoluteFileLocationInsert = args[6];
+		yal = new YoutubeApiList(
+				operation, sqlType, apiKey, handleName, absoluteFileLocationInsert, 
+				parentId, lastTimestamp);
+    	if(args.length > 7)
     	{
-    		long lastTimestamp = Long.valueOf(args[5]);
-    		String absoluteFileLocationInsert = args[6];
-    		yal = new YoutubeApiList(
-    				operation, sqlType, apiKey, handleName, absoluteFileLocationInsert, 
-    				parentId, lastTimestamp);
+    		String [] videoIds = new String[args.length-7];
+    		for(int i = 7; i < args.length; i++)
+    		{
+    			videoIds[i-7] = args[i];
+    		}
+    		yal.setVideoIds(videoIds);
     	}
-    	else if(args.length == 8)
-    	{
-    		long beginTimestamp = Long.valueOf(args[5]);
-    		long endTimestamp = Long.valueOf(args[6]);
-    		String absoluteFileLocationInsert = args[7];
-    		yal = new YoutubeApiList(
-    				operation, sqlType, apiKey, handleName, absoluteFileLocationInsert, 
-    				parentId, beginTimestamp, endTimestamp);
-    	}
+    	
+    	return yal;
+    }
+    
+    public static void main(String[] args) throws IOException 
+    {
+    	YoutubeApiList yal = parseArgs(args);
     	yal.runOperation();
     }
     

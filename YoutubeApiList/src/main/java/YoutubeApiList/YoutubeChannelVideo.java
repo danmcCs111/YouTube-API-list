@@ -14,7 +14,6 @@ public class YoutubeChannelVideo implements Comparator<YoutubeChannelVideo>
 	private String 
 		title,
 		filteredTitle,
-		duration,
 		durationHoursMinutesSeconds,
 		imageUrl,
 		videoId;
@@ -34,53 +33,10 @@ public class YoutubeChannelVideo implements Comparator<YoutubeChannelVideo>
 		
 		this.imageUrl = imageUrl;
 		this.videoId = videoId;
-		this.duration = duration;
-		this.durationHoursMinutesSeconds = convertISO8601HoursMinutesSeconds(duration);
+		this.durationHoursMinutesSeconds = duration;
 		this.dt = new Date(dt.getValue());
 	}
 	
-	
-	public static String convertISO8601HoursMinutesSeconds(String duration)
-	{
-		int
-			hour = 0,
-			minute = 0,
-			second = 0;
-		
-		//youtube video limit 12 hours
-		char [] chars = duration.toCharArray();
-		for(int i = 0; i < chars.length; i++)
-		{
-			char c = chars[i];
-			if(c == 'P' || c == 'T')
-			{
-				continue;
-			}
-			else if(Character.isDigit(c))
-			{
-				String tmp = "";
-				do
-				{
-					tmp += chars[i];
-					i++;
-				} while(Character.isDigit(chars[i]));
-				char c2 = chars[i];
-				switch(c2)
-				{
-				case 'H':
-					hour = Integer.parseInt(tmp);
-					break;
-				case 'M':
-					minute = Integer.parseInt(tmp);
-					break;
-				case 'S':
-					second = Integer.parseInt(tmp);
-					break;
-				}
-			}
-		}
-		return hour + "," + minute + "," + second;
-	}
 	
 	public int getParentId()
 	{

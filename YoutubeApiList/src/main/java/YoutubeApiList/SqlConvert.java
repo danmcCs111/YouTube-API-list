@@ -32,6 +32,9 @@ public class SqlConvert
 		}
 	}
 	private static final String 
+		UPDATE_SQLITE = "Update videoYoutube set Duration_VideoYoutube_VideoYoutubeDatabase=<arg0> "
+				+ "WHERE Id_VideoYoutube_VideoYoutubeDatabase=<arg1>",
+		
 		INSERT_SQL = "Insert Into videodatabase.videoYoutube (",
 		INSERT_SQLITE = "Insert Into videoYoutube (",
 		INSERT_PREFIX = 
@@ -76,24 +79,30 @@ public class SqlConvert
 		return sql;
 	}
 	
+	public static String createUpdateYoutubeChannelVideo(String duration, String videoId, SqlType sqlType)
+	{
+		String sql = UPDATE_SQLITE;
+		sql = sql.replace("<arg0>", surroundQuotes(duration, sqlType));
+		sql = sql.replace("<arg1>", surroundQuotes(videoId, sqlType));
+		sql += ";";
+		return sql;
+	}
+	
 	
 	private static String surroundQuotesComma(String txt, SqlType sqlType)
 	{
+		return surroundQuotes(txt, sqlType) + ", ";
+	}
+	private static String surroundQuotes(String txt, SqlType sqlType)
+	{
+		String ret = "";
 		switch(sqlType)
 		{
 		case SQL:
-			return surroundQuotes(txt) + ", ";
+			ret = "\"" + txt + "\"";
 		case SQLite:
-			return surroundQuotesSqlite(txt) + ", ";
+			ret = "\'" + txt + "\'";
 		}
-		return null;
-	}
-	private static String surroundQuotes(String txt)
-	{
-		return "\"" + txt + "\"";
-	}
-	private static String surroundQuotesSqlite(String txt)
-	{
-		return "\'" + txt + "\'";
+		return ret;
 	}
 }

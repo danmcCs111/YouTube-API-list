@@ -30,7 +30,6 @@ public class YoutubeChannelVideosCollector
 	private static long
 		maxResults = 500L;//set through setMaxResults
 	
-	
 	public ArrayList<YoutubeChannelVideo> collectYoutubeChannelVideos(
 			int parentId, String apiKey, String youtubeHandleName, 
 			int calendarFieldOffsetBegin, int calendarOffsetValueBegin,
@@ -59,9 +58,7 @@ public class YoutubeChannelVideosCollector
 		
     	ArrayList<YoutubeChannelVideo> retVideos = new ArrayList<YoutubeChannelVideo>();
     	
-    	youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), request -> {})
-                .setApplicationName("youtube-cmdline-search-sample")
-                .build();
+    	youtube = getYoutube();
     	
     	YouTube.Channels.List channelRequest = youtube.channels().list(
     			Arrays.asList(new String []{"contentDetails"}));
@@ -97,8 +94,7 @@ public class YoutubeChannelVideosCollector
     	for (SearchResult item : allVideos) 
     	{
 //    		String channelTitle = item.getSnippet().getChannelTitle();
-    		VideoContentDetails vcd = getContentDetails(item.getId().getVideoId(), apiKey);
-    		String duration = vcd.getDuration();
+    		String duration = collectYoutubeVideoDuration(item.getId().getVideoId(), apiKey);
     		
     	    String videoTitle = item.getSnippet().getTitle();
     	    Thumbnail thumb = item.getSnippet().getThumbnails().getMedium();
@@ -117,6 +113,25 @@ public class YoutubeChannelVideosCollector
     	
     	return retVideos;
     }
+	
+	private static YouTube getYoutube()
+	{
+		if(youtube != null)
+			return youtube;
+		
+		youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), request -> {})
+                .setApplicationName("youtube-cmdline-search-sample")
+                .build();
+		return youtube;
+	}
+	
+	public String collectYoutubeVideoDuration(String videoId, String apiKey)
+	{
+		VideoContentDetails vcd = getContentDetails(videoId, apiKey);
+		String duration = vcd.getDuration();
+		duration = convertISO8601HoursMinutesSeconds(duration);
+		return duration;
+	}
 	
 	private static void setMaxResults(int fieldOffset, int offsetValue)
 	{
@@ -155,6 +170,7 @@ public class YoutubeChannelVideosCollector
 	private static VideoContentDetails getContentDetails(String videoId, String apiKey)
 	{
 		VideoContentDetails vcd = null;
+		youtube = getYoutube();
 		try {
 			List<String> parts = Arrays.asList("snippet", "contentDetails", "statistics");
 			YouTube.Videos.List videoRequest = youtube.videos().list(parts);
@@ -193,5 +209,47 @@ public class YoutubeChannelVideosCollector
     	String formatDateR = formatDate + "T" + formatDate2 + "Z";
     	
     	return formatDateR;
+	}
+	
+	public static String convertISO8601HoursMinutesSeconds(String duration)
+	{
+		int
+			hour = 0,
+			minute = 0,
+			second = 0;
+		
+		//youtube video limit 12 hours
+		char [] chars = duration.toCharArray();
+		for(int i = 0; i < chars.length; i++)
+		{
+			char c = chars[i];
+			if(c == 'P' || c == 'T')
+			{
+				continue;
+			}
+			else if(Character.isDigit(c))
+			{
+				String tmp = "";
+				do
+				{
+					tmp += chars[i];
+					i++;
+				} while(Character.isDigit(chars[i]));
+				char c2 = chars[i];
+				switch(c2)
+				{
+				case 'H':
+					hour = Integer.parseInt(tmp);
+					break;
+				case 'M':
+					minute = Integer.parseInt(tmp);
+					break;
+				case 'S':
+					second = Integer.parseInt(tmp);
+					break;
+				}
+			}
+		}
+		return hour + "," + minute + "," + second;
 	}
 }
