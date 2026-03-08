@@ -128,6 +128,8 @@ public class YoutubeChannelVideosCollector
 	public String collectYoutubeVideoDuration(String videoId, String apiKey)
 	{
 		VideoContentDetails vcd = getContentDetails(videoId, apiKey);
+		if(vcd == null)
+			return null;
 		String duration = vcd.getDuration();
 		duration = convertISO8601HoursMinutesSeconds(duration);
 		return duration;

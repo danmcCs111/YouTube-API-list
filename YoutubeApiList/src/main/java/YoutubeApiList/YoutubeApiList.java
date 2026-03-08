@@ -172,14 +172,18 @@ public class YoutubeApiList
     	else if(operation.equals(OPERATION_OPTIONS[1])) //collect duration
     	{
     		YoutubeChannelVideosCollector ycvc = new YoutubeChannelVideosCollector();
+    		String sql = "";
     		for(String videoId : videoIds)
     		{
     			String duration = ycvc.collectYoutubeVideoDuration(videoId, apiKey);
-    			String sql = SqlConvert.createUpdateYoutubeChannelVideo(duration, videoId, SqlType.SQLite);
-    			System.out.println(sql);
-        		File f = new File(absoluteFileLocationInsert);
-        		PathUtility.writeStringToFile(f, sql);
+    			if(duration == null)
+    				continue;
+    			
+    			sql += SqlConvert.createUpdateYoutubeChannelVideo(duration, videoId, SqlType.SQLite);
     		}
+    		System.out.println(sql);
+    		File f = new File(absoluteFileLocationInsert);
+    		PathUtility.writeStringToFile(f, sql);
     	}
     	else if(operation.equals(OPERATION_OPTIONS[2]))
     	{
