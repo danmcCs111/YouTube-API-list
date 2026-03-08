@@ -17,6 +17,9 @@ import com.google.api.services.youtube.model.ChannelListResponse;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 import com.google.api.services.youtube.model.Thumbnail;
+import com.google.api.services.youtube.model.Video;
+import com.google.api.services.youtube.model.VideoContentDetails;
+import com.google.api.services.youtube.model.VideoListResponse;
 
 public class YoutubeChannelVideosCollector 
 {
@@ -93,7 +96,9 @@ public class YoutubeChannelVideosCollector
 
     	for (SearchResult item : allVideos) 
     	{
-    		String channelTitle = item.getSnippet().getChannelTitle();
+//    		String channelTitle = item.getSnippet().getChannelTitle();
+    		VideoContentDetails vcd = getContentDetails(item.getId().getVideoId(), apiKey);
+    		String duration = vcd.getDuration();
     		
     	    String videoTitle = item.getSnippet().getTitle();
     	    Thumbnail thumb = item.getSnippet().getThumbnails().getMedium();
@@ -103,9 +108,9 @@ public class YoutubeChannelVideosCollector
     	    
     	    if(videoId != null)
     	    {
-    	    	retVideos.add(new YoutubeChannelVideo(parentId, videoTitle, thumbUrl, videoId, dt));
+    	    	YoutubeChannelVideo ycv = new YoutubeChannelVideo(parentId, videoTitle, thumbUrl, videoId, duration, dt);
+    	    	retVideos.add(ycv);
     	    }
-    	    
     	}
     	
     	Collections.sort(retVideos, new YoutubeChannelVideo());
@@ -145,6 +150,34 @@ public class YoutubeChannelVideosCollector
 		System.out.println("days in timespan: " + days);
 		
 		YoutubeChannelVideosCollector.maxResults = YoutubeChannelVideosCollector.maxResultsPerDay * days;
+	}
+	
+	private static VideoContentDetails getContentDetails(String videoId, String apiKey)
+	{
+		VideoContentDetails vcd = null;
+		try {
+			List<String> parts = Arrays.asList("snippet", "contentDetails", "statistics");
+			YouTube.Videos.List videoRequest = youtube.videos().list(parts);
+			
+			videoRequest.setId(Arrays.asList(videoId));
+			videoRequest.setKey(apiKey);
+			
+			VideoListResponse listResponse = videoRequest.execute();
+			List<Video> videoList = listResponse.getItems();
+			
+			if (!videoList.isEmpty()) 
+			{
+			    Video targetVideo = videoList.iterator().next();
+			    vcd = targetVideo.getContentDetails();
+			} 
+			else 
+			{
+			    System.out.println("No video found with ID: " + videoId);
+			}
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+		return vcd;
 	}
 	
 	public static String getRfc3339String(int fieldOffset, int offsetValue)

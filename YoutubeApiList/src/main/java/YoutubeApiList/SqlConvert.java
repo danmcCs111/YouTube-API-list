@@ -40,6 +40,7 @@ public class SqlConvert
 				"Title_VideoYoutube_VideoYoutubeDatabase, " + 
 				"Url_VideoYoutube_VideoYoutubeDatabase, " +
 				"PosterImageUrl_VideoYoutube_VideoYoutubeDatabase, " +
+				"Duration_VideoYoutube_VideoYoutubeDatabase, " +
 				"UploadDate_VideoYoutube_VideoYoutubeDatabase, " +
 				"InsertDate_VideoYoutube_VideoYoutubeDatabase)" + 
 				" values (",
@@ -66,6 +67,7 @@ public class SqlConvert
 			sql += surroundQuotesComma(ycv.getFilteredTitle(), sqlType);
 			sql += surroundQuotesComma(ycv.getVideoUrl(), sqlType);
 			sql += surroundQuotesComma(ycv.getImageUrl(), sqlType);
+			sql += surroundQuotesComma(ycv.getHoursMinutesSeconds(), sqlType);
 			Timestamp t = new Timestamp(ycv.getUploadDate().getTime());
 			sql += surroundQuotesComma(t.toLocalDateTime().toString(), sqlType);
 			sql += INSERT_SUFFIX;

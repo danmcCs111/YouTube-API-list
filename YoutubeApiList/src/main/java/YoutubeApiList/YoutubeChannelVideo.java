@@ -14,6 +14,8 @@ public class YoutubeChannelVideo implements Comparator<YoutubeChannelVideo>
 	private String 
 		title,
 		filteredTitle,
+		duration,
+		durationHoursMinutesSeconds,
 		imageUrl,
 		videoId;
 	private Date 
@@ -24,7 +26,7 @@ public class YoutubeChannelVideo implements Comparator<YoutubeChannelVideo>
 		
 	}
 	
-	public YoutubeChannelVideo(int parentId, String title, String imageUrl, String videoId, DateTime dt)
+	public YoutubeChannelVideo(int parentId, String title, String imageUrl, String videoId, String duration, DateTime dt)
 	{
 		this.parentId = parentId;
 		this.title = title;
@@ -32,9 +34,53 @@ public class YoutubeChannelVideo implements Comparator<YoutubeChannelVideo>
 		
 		this.imageUrl = imageUrl;
 		this.videoId = videoId;
+		this.duration = duration;
+		this.durationHoursMinutesSeconds = convertISO8601HoursMinutesSeconds(duration);
 		this.dt = new Date(dt.getValue());
 	}
 	
+	
+	public static String convertISO8601HoursMinutesSeconds(String duration)
+	{
+		int
+			hour = 0,
+			minute = 0,
+			second = 0;
+		
+		//youtube video limit 12 hours
+		char [] chars = duration.toCharArray();
+		for(int i = 0; i < chars.length; i++)
+		{
+			char c = chars[i];
+			if(c == 'P' || c == 'T')
+			{
+				continue;
+			}
+			else if(Character.isDigit(c))
+			{
+				String tmp = "";
+				do
+				{
+					tmp += chars[i];
+					i++;
+				} while(Character.isDigit(chars[i]));
+				char c2 = chars[i];
+				switch(c2)
+				{
+				case 'H':
+					hour = Integer.parseInt(tmp);
+					break;
+				case 'M':
+					minute = Integer.parseInt(tmp);
+					break;
+				case 'S':
+					second = Integer.parseInt(tmp);
+					break;
+				}
+			}
+		}
+		return hour + "," + minute + "," + second;
+	}
 	
 	public int getParentId()
 	{
@@ -43,6 +89,10 @@ public class YoutubeChannelVideo implements Comparator<YoutubeChannelVideo>
 	public Date getUploadDate()
 	{
 		return this.dt;
+	}
+	public String getHoursMinutesSeconds()
+	{
+		return this.durationHoursMinutesSeconds;
 	}
 	public String getFilteredTitle()
 	{
