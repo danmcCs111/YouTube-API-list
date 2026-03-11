@@ -172,6 +172,10 @@ public class YoutubeChannelVideosCollector
 	private static VideoContentDetails getContentDetails(String videoId, String apiKey)
 	{
 		VideoContentDetails vcd = null;
+		if(videoId == null)
+		{
+			return null;
+		}
 		youtube = getYoutube();
 		try {
 			List<String> parts = Arrays.asList("snippet", "contentDetails", "statistics");
