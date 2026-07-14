@@ -1,41 +1,19 @@
 package YoutubeApiList;
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.youtube.YouTube;
 
 import YoutubeApiList.SqlConvert.SqlType;
 
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
-import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 
 public class YoutubeApiList 
 {
-    private static final Collection<String> 
-    	SCOPES = Arrays.asList("https://www.googleapis.com/auth/youtube.readonly");
-    private static final String 
-    	APPLICATION_NAME = "API code samples";
-    private static final JsonFactory 
-    	JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String [] 
     	OPERATION_OPTIONS = new String [] {
-    		"showResult", "collectDuration", "test2"
+    		"showResult", "collectDuration"
     };
     private static final int [] []
     	DEFAULT_TIMESPAN = new int [] [] {
@@ -58,11 +36,19 @@ public class YoutubeApiList
 //    	endTimestamp;
     private String [] 
     	videoIds = null;
+    private LoadingDisplay 
+    	loadingDisplay;
+    
+    private YoutubeApiList()
+    {
+    	loadingDisplay = new LoadingDisplay();
+    }
     
     public YoutubeApiList(
     		String operation, String sqlType, String apiKey, String handleName, String absoluteFileLocationInsert,
     		int parentId, long lastTimestamp)
     {
+    	this();
     	this.operation = operation;
 		this.sqlType = sqlType;
 		this.apiKey = apiKey;
@@ -77,6 +63,7 @@ public class YoutubeApiList
     		String operation, String sqlType, String apiKey, String handleName, String absoluteFileLocationInsert,
     		int parentId, long beginTimestamp, long endTimestamp)
     {
+    	this();
     	this.operation = operation;
 		this.sqlType = sqlType;
 		this.apiKey = apiKey;
@@ -89,35 +76,14 @@ public class YoutubeApiList
 //		this.endTimestamp = endTimestamp;
     }
     
+    public LoadingDisplay getLoadingDisplay()
+    {
+    	return loadingDisplay;
+    }
     
     public void setVideoIds(String [] videoIds)
     {
     	this.videoIds = videoIds;
-    }
-    
-    private static YouTube getService(String secretsFileLocation) throws GeneralSecurityException, IOException 
-    {
-        final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-        Credential credential = authorize(httpTransport, secretsFileLocation);
-        return new YouTube.Builder(httpTransport, JSON_FACTORY, credential)
-            .setApplicationName(APPLICATION_NAME)
-            .build();
-    }
-    
-    private static Credential authorize(final NetHttpTransport httpTransport, String secretsFileLocation) throws IOException 
-    {
-    	File f = new File(secretsFileLocation);
-    	String str = PathUtility.readFileToString(f);
-        // Load client secrets.
-        InputStream in = new ByteArrayInputStream(str.getBytes());
-        GoogleClientSecrets clientSecrets =
-        GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
-        // Build flow and trigger user authorization request.
-        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
-        		httpTransport, JSON_FACTORY, clientSecrets, SCOPES)
-            .build();
-        Credential credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
-        return credential;
     }
     
     public int [] getTimespanScan(long timestamp)
@@ -145,15 +111,22 @@ public class YoutubeApiList
     	return retTimeAdjust;
     }
     
-    public void runOperation() throws IOException
+    public void runOperation() 
     {
     	if(operation.equals(OPERATION_OPTIONS[0]))
     	{
     		YoutubeChannelVideosCollector ycvc = new YoutubeChannelVideosCollector();
     		int timeSpan[] = getTimespanScan(lastTimestamp);
     		
-    		ArrayList<YoutubeChannelVideo> ycvs = ycvc.collectYoutubeChannelVideos(
-    				parentId, apiKey, handleName, timeSpan[0], timeSpan[1]);
+    		ArrayList<YoutubeChannelVideo> ycvs;
+			try {
+				ycvs = ycvc.collectYoutubeChannelVideos(
+						parentId, apiKey, handleName, timeSpan[0], timeSpan[1]);
+			} catch (IOException e) {
+				e.printStackTrace();
+				loadingDisplay.setError(e.getMessage());
+				return;
+			}
     		
     		String sql = SqlConvert.convertYoutubeChannelVideos(ycvs, SqlType.getType(sqlType));
     		System.out.println(sql);
@@ -185,10 +158,7 @@ public class YoutubeApiList
     		File f = new File(absoluteFileLocationInsert);
     		PathUtility.writeStringToFile(f, sql);
     	}
-    	else if(operation.equals(OPERATION_OPTIONS[2]))
-    	{
-//    		TestYoutubeResponse.test2(args[1], getService(args[2]));
-    	}
+    	loadingDisplay.setCompleted();
     }
     
     public static YoutubeApiList parseArgs(String [] args)
@@ -223,6 +193,7 @@ public class YoutubeApiList
 		yal = new YoutubeApiList(
 				operation, sqlType, apiKey, handleName, absoluteFileLocationInsert, 
 				parentId, lastTimestamp);
+		yal.getLoadingDisplay().setTitleText(handleName);
     	if(args.length > 7)
     	{
     		String [] videoIds = new String[args.length-7];
